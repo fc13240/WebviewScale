@@ -514,18 +514,13 @@
 		* @param {object} jqEvent The normalised jQuery event object.
 		*/
 		function touchStart(jqEvent) {
-			console.log('touchstart');
 			//If we already in a touch event (a finger already in use) then ignore subsequent ones..
-			if( getTouchInProgress() ){
-				console.log('getTouchInProgress():true');
+			if( getTouchInProgress() )
 				return;
-			}
 			
 			//Check if this element matches any in the excluded elements selectors,  or its parent is excluded, if so, DON'T swipe
-			if( $(jqEvent.target).closest( options.excludedElements, $element ).length>0 ) {
-				console.log('second');
+			if( $(jqEvent.target).closest( options.excludedElements, $element ).length>0 ) 
 				return;
-			}
 				
 			//As we use Jquery bind for events, we need to target the original event object
 			//If these events are being programmatically triggered, we don't have an original event object, so use the Jq one.
@@ -571,19 +566,17 @@
 					//Store second finger data as start
 					createFingerData( 1, event.touches[1] );
 					startTouchesDistance = endTouchesDistance = calculateTouchesDistance(fingerData[0].start, fingerData[1].start);
-					console.log('fingerCount:2');
 				}
 				
 				if (options.swipeStatus || options.pinchStatus) {
 					ret = triggerHandler(event, phase);
-					console.log('triggerHandler ret:'+ret);
 				}
 			}
 			else {
 				//A touch with more or less than the fingers we are looking for, so cancel
 				ret = false; 
 			}
-console.log('ret:'+ret);
+
 			//If we have a return value from the users handler, then return and cancel
 			if (ret === false) {
 				phase = PHASE_CANCEL;
@@ -606,7 +599,7 @@ console.log('ret:'+ret);
 		* @param {object} jqEvent The normalised jQuery event object.
 		*/
 		function touchMove(jqEvent) {
-			console.log('touchMove');
+			
 			//As we use Jquery bind for events, we need to target the original event object
 			//If these events are being programmatically triggered, we don't have an original event object, so use the Jq one.
 			var event = jqEvent.originalEvent ? jqEvent.originalEvent : jqEvent;
@@ -718,7 +711,6 @@ console.log('ret:'+ret);
 		* @param {object} jqEvent The normalised jQuery event object.
 		*/
 		function touchEnd(jqEvent) {
-			console.log('touchEnd');
 			//As we use Jquery bind for events, we need to target the original event object
 			var event = jqEvent.originalEvent;
 				
@@ -728,7 +720,7 @@ console.log('ret:'+ret);
 			if (SUPPORTS_TOUCH) {
 				if(event.touches.length>0) {
 					startMultiFingerRelease();
-					// return true;
+					return true;
 				}
 			}
 			
@@ -781,7 +773,6 @@ console.log('ret:'+ret);
 		* @inner
 		*/
 		function touchCancel() {
-			console.log('touchCancel');
 			// reset the variables back to default values
 			fingerCount = 0;
 			endTime = 0;
@@ -818,7 +809,6 @@ console.log('ret:'+ret);
 		* @inner
 		*/
 		function removeListeners() {
-			console.log('removeListeners');
 			$element.unbind(START_EV, touchStart);
 			$element.unbind(CANCEL_EV, touchCancel);
 			$element.unbind(MOVE_EV, touchMove);
@@ -938,7 +928,7 @@ console.log('ret:'+ret);
 		* @inner
 		*/
 		function triggerHandlerForGesture(event, phase, gesture) {	
-			console.log('triggerHandlerForGesture:'+phase+' '+gesture);
+			
 			var ret=undefined;
 			
 			//SWIPES....
@@ -1516,18 +1506,14 @@ console.log('ret:'+ret);
 			
 			//Add or remove event listeners depending on touch status
 			if(val===true) {
-				// if($element.data(PLUGIN_NS+'_intouch') !== true){
-console.log('bind:'+MOVE_EV+' '+END_EV);
-					$element.bind(MOVE_EV, touchMove);
-					$element.bind(END_EV, touchEnd);
-					
-					//we only have leave events on desktop, we manually calcuate leave on touch as its not supported in webkit
-					if(LEAVE_EV) { 
-						$element.bind(LEAVE_EV, touchLeave);
-					}
-				// }
+				$element.bind(MOVE_EV, touchMove);
+				$element.bind(END_EV, touchEnd);
+				
+				//we only have leave events on desktop, we manually calcuate leave on touch as its not supported in webkit
+				if(LEAVE_EV) { 
+					$element.bind(LEAVE_EV, touchLeave);
+				}
 			} else {
-				console.log('unbind:'+MOVE_EV+' '+END_EV);
 				$element.unbind(MOVE_EV, touchMove, false);
 				$element.unbind(END_EV, touchEnd, false);
 			
@@ -1536,7 +1522,7 @@ console.log('bind:'+MOVE_EV+' '+END_EV);
 					$element.unbind(LEAVE_EV, touchLeave, false);
 				}
 			}
-			console.log('setTouchInProgress:'+val);
+			
 		
 			//strict equality to ensure only true and false can update the value
 			$element.data(PLUGIN_NS+'_intouch', val === true);
