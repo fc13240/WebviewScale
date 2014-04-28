@@ -8,7 +8,7 @@
     });
     var gm;
     var conf = { 
-		container: 'operator'
+		container: 'inner_operator'
 	};
     require(['GeoMap'],function(GeoMap) {
 		gm = GeoMap.init(conf);
@@ -42,6 +42,7 @@
 		}
 		var $operator = $("#operator");
 		var $container = $('#container');
+		var _oldOffset = $operator.position();
 		$container.swipe({
 			pinchStatus: function(e, phase, direction, distance , duration , fingerCount, pinchZoom){
 				console.log([phase, direction, distance , duration , fingerCount, pinchZoom].join('__'));
@@ -55,27 +56,34 @@
 				// $operator.css({
 				// 	'transform-origin': _origin.x+'px '+_origin.y+'px'
 				// });
+				if(phase == 'start'){
+					_oldOffset = $operator.position();
+				}
 				if(fingerCount == 2){// 缩放
 					if(phase == 'end'){
 						var _oldWidth = $operator.width(),
 							_oldHeight = $operator.height(),
 							_newWidth = _oldWidth * pinchZoom,
 							_newHeight = _oldHeight * pinchZoom,
-							_oldOffset = $operator.position(),
+							// _oldOffset = $operator.position(),
 							_oldLeft = _oldOffset.left,
 							_oldTop = _oldOffset.top,
 							_origin = data_pinch.origin,
-							_newLeft = _oldLeft + (_newWidth - _oldWidth) * _origin.x/_oldWidth,
-							_newTop = _oldTop + (_newHeight - _oldHeight) * _origin.y/_oldHeight;
+							_newLeft = _oldLeft - (_newWidth - _oldWidth) * _origin.x/_oldWidth,
+							_newTop = _oldTop - (_newHeight - _oldHeight) * _origin.y/_oldHeight;
+						// console.log(['resize',_oldLeft,_oldTop,_newLeft,_newTop,pinchZoom].join('_'));
 						$operator.css({
 							transform: 'scale(1)',
 							width: _newWidth,
 							height: _newHeight,
 							left: _newLeft,
-							top: _newTop
+							top: _newTop,
+							1:1
 						});
 						gm && gm.resize();
+						resetOrigin();
 					}else if(phase == 'move'){
+						// console.log(['move-resize',$operator.position().left,$operator.position().top,$operator.width()].join(','));
 						$operator.css({
 							transform: 'scale('+pinchZoom+')'
 						});
@@ -118,6 +126,8 @@
 							left:_newLeft,
 							top: _newTop
 						});
+					}else if(phase == 'end'){
+						resetOrigin()
 					}
 				}				
 			},
@@ -126,6 +136,22 @@
 			triggerOnTouchLeave: true,
 			fingers: 2
 		});
+		function resetOrigin(){
+			var _p = $operator.position();
+			var _middle = data_pinch.middle;
+			var _origin = data_pinch.origin = {
+				x:_middle.x  - _p.left,
+				y:_middle.y - _p.top
+			}
+			$('#middle').css({
+				left: _origin.x,
+				top: _origin.y
+			})
+			$operator.css({
+				'transform-origin': _origin.x+'px '+_origin.y+'px'
+			});
+			// console.log(_p,_middle,_origin.x+'px '+_origin.y+'px');
+		}
 		var $_parent = $operator.parent();
 		data_pinch.middle = {
 			x: $container.width() / 2,
@@ -135,6 +161,7 @@
 			width: $operator.width(),
 			height: $operator.height()
 		}
+		resetOrigin();
 	})
 
 }()
